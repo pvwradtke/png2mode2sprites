@@ -1,4 +1,6 @@
 png2mode2sprites
 *.pattern
 *.colors
+*.dll
+*.exe
 
