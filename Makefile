@@ -5,5 +5,5 @@ clean:
 	rm png2mode2sprites
 
 install:
-	cp png2sc5raw /usr/local/bin
+	cp png2mode2sprites /usr/local/bin
 
