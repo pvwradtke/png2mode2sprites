@@ -39,11 +39,40 @@ int main(int argc, char* argv[]) {
     SDL_Surface* msx = IMG_Load(argv[1]);
     if (!msx) {
         printf("Can't load the file\n");
+        IMG_Quit();
+        SDL_Quit();
         return 1;
     }
-    if(msx->format->palette->ncolors!=16){
+    if(msx->format->palette->ncolors!=16 && msx->format->palette->ncolors!=256){
         printf("PNG doesn't have 16 indexed colors\n");
-        return 1;
+        SDL_FreeSurface(msx);
+        IMG_Quit();
+        SDL_Quit();
+        return 1;        
+    }
+    if(msx->format->palette->ncolors == 256){
+        int count=0;
+        bool found[256];
+        int highest=((char*)msx->pixels)[0];
+        memset(found, 0, 256);
+        for(int i=0;i<msx->w*msx->h;i++){
+        	int pixel = ((char*)msx->pixels)[i];
+        	if(!found[pixel]){
+        		count++;
+        		found[pixel]=true;
+        		if(pixel > highest)
+        			highest=pixel;
+        	}
+        }
+        if(count < 16 && highest < 16)
+	        printf("Found a valid 256 color PNG, it has %d colors, and the highest vaule is %d - both are up to 16.\n", count, highest);
+	else{
+		printf("Found an invalid 256 color PNG, it has %d colors, and the highest vaule is %d - both should be up to 16.\n", count, highest);
+		SDL_FreeSurface(msx);
+	        IMG_Quit();
+                SDL_Quit();
+		return 1;
+	}
     }
     printf("File %s - Width: %d, Height: %d, %d colors\n",
     	argv[1], msx->w, msx->h, msx->format->palette->ncolors);

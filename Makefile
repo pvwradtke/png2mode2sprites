@@ -8,5 +8,5 @@ install:
 	cp png2mode2sprites /usr/local/bin
 
 windows:
-	i686-w64-mingw32-gcc png2mode2sprites.c -o png2mode2sprites.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+	x86_64-w64-mingw32-gcc png2mode2sprites.c -o png2mode2sprites.exe -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
 
