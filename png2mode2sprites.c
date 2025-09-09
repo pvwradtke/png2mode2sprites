@@ -24,7 +24,7 @@ uint8_t spColors[1024][16];
 
 int main(int argc, char* argv[]) {
     memset(spPixels, 0, 1024*32);     // All to transparente pixels
-    memset(spColors, 64, 1024*16);    // All to transparent color with CC bit to 1
+    memset(spColors, 0, 1024*16);    // All to transparent color with CC bit to 1
     int sprites=0;
     if(argc != 4 && argc != 2){
     	printf("Usage: png2mode2sprites <pngfilename> <raw sprite patterns> <raw sprite colors>\n");
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         SDL_FreeSurface(msx);
         IMG_Quit();
         SDL_Quit();
-        return 1;        
+        return 1;
     }
     if(msx->format->palette->ncolors == 256){
         int count=0;
@@ -175,7 +175,6 @@ int main(int argc, char* argv[]) {
                     if(pixel == colorA || pixel == colorM){
                         byte1 = byte1 | bit;
                     }
-                    else
                     // Same for color of the sprite 2
                     if(pixel == colorB || pixel == colorM)
                         byte2 = byte2 | bit;
@@ -184,25 +183,26 @@ int main(int argc, char* argv[]) {
                 spPixels[numSprites][line]=byte1;
                 // If we have a second sprite, the color is different than 0
                 if(colorB!=255)
-                    spPixels[numSprites+1][line]=byte2;
+                    spPixels[numSprites+1][line]= byte2;
                 // Writes the color information. The first sprite ALWAYS has a color, but if there's colorB, we shoud set the CC bit
                 if(colorB == 255)
-                    spColors[numSprites][line]= 64 | colorA;
+                    spColors[numSprites][line]= colorA;
                 else if(colorM==255){
-                    spColors[numSprites][line]= 64 | colorA;
-                    spColors[numSprites+1][line]= 64 | colorB;
+                    spColors[numSprites][line]= colorA;
+                    spColors[numSprites+1][line]= colorB;
                 }
                 else if(colorM!=255){
                     spColors[numSprites][line]= colorA;
                     spColors[numSprites+1][line]= 64 | colorB;
                 }
+                //printf("Sprite %d, Color A: %d, Color B: %d, Color M: %d\n", (msx->h/16)*i+j, colorA, colorB, colorM);
                 byte1=0;
                 byte2=0;
                 // For pixesl 8 to 15 (left side, sprite pattern 0 or 1)
                 for(int bitCount=0;bitCount<8;bitCount++){
-                    unsigned char pixel = ((unsigned char*)msx->pixels)[(i+line)*msx->w+j*16+bitCount+8];
+                    unsigned char pixel = ((unsigned char*)msx->pixels)[(i*16+line)*msx->w+j*16+bitCount+8];
                     // Sets the leftmost bit to1 and shit up to 7 bits, depending on which pixel we're working with
-                    unsigned char bit=0x128 >> bitCount;
+                    unsigned char bit=128 >> bitCount;
                     // We set the bit to 1 if the color matches the color for sprite 1 or the merged color
                     if(pixel == colorA || pixel == colorM)
                         byte1 = byte1 | bit;
@@ -215,17 +215,6 @@ int main(int argc, char* argv[]) {
                 // If we have a second sprite, the color is different than 0
                 if(colorB!=255)
                     spPixels[numSprites+1][line+16]=byte2;
-                // Writes the color information. The first sprite ALWAYS has a color, but if there's colorB, we shoud set the CC bit
-                if(colorB == 255)
-                    spColors[numSprites][line] = 64 | colorA;
-                else if(colorM==255){
-                    spColors[numSprites][line] = 64 | colorA;
-                    spColors[numSprites+1][line] = 64 | colorB;
-                }
-                else if(colorM!=255){
-                    spColors[numSprites][line]= colorA;
-                    spColors[numSprites+1][line]= 64 | colorB;
-                }
             }
             // Add the sprite counter according to the sprites found
             if(spriteA)
