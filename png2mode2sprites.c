@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
                                 cColors++;
                             }else{
                                 // Clean up as we can´t have more than three colors per line
-                                printf("ERROR! Image %s has more colors per line on sprite %d at line %d.\n", argv[1], i*(msx->h/16)+j, line);
+                                printf("ERROR! Image %s has more colors per line on sprite %d at line %d - PNG (%d, %d).\n", argv[1], i*(msx->w/16)+j, line, i*16+line, j*16);
                                 SDL_FreeSurface(msx);
                                 IMG_Quit();
                                 SDL_Quit();
