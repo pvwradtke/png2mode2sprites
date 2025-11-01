@@ -12,6 +12,7 @@ To compile, install SDL2 and SDL2 Image and run:
 
 */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
@@ -21,6 +22,7 @@ uint16_t palette[16];
 // Can convert up to 1024 sprites (not really a strong case, but, whatever)
 uint8_t spPixels[1024][32];
 uint8_t spColors[1024][16];
+uint8_t transparent = 0 ;
 
 int main(int argc, char* argv[]) {
     memset(spPixels, 0, 1024*32);     // All to transparente pixels
@@ -43,15 +45,16 @@ int main(int argc, char* argv[]) {
         SDL_Quit();
         return 1;
     }
-    if(msx->format->palette->ncolors!=16 && msx->format->palette->ncolors!=256){
-        printf("PNG doesn't have 16 indexed colors\n");
+    if(!SDL_ISPIXELFORMAT_INDEXED(msx->format->format)){
+        printf("PNG doesn't have 16 or 256 indexed colors\n");
         SDL_FreeSurface(msx);
         IMG_Quit();
         SDL_Quit();
         return 1;
     }
-    if(msx->format->palette->ncolors == 256){
-        int count=0;
+    if(msx->format->palette->ncolors == 17){
+        transparent=16;
+/*        int count=0;
         bool found[256];
         int highest=((char*)msx->pixels)[0];
         memset(found, 0, 256);
@@ -66,13 +69,16 @@ int main(int argc, char* argv[]) {
         }
         if(count < 16 && highest < 16)
 	        printf("Found a valid 256 color PNG, it has %d colors, and the highest vaule is %d - both are up to 16.\n", count, highest);
-	else{
-		printf("Found an invalid 256 color PNG, it has %d colors, and the highest vaule is %d - both should be up to 16.\n", count, highest);
-		SDL_FreeSurface(msx);
-	        IMG_Quit();
-                SDL_Quit();
-		return 1;
-	}
+        else if(count == 17 && highest == 17){
+            printf("Found a valid 256 color PNG, it has %d colors, and the highest vaule is %d - both are up to 16.\n", count, highest);
+        }
+        else{
+            printf("Found an invalid 256 color PNG, it has %d colors, and the highest vaule is %d - both should be up to 16.\n", count, highest);
+            SDL_FreeSurface(msx);
+                IMG_Quit();
+                    SDL_Quit();
+            return 1;
+        }*/
     }
     printf("File %s - Width: %d, Height: %d, %d colors\n",
     	argv[1], msx->w, msx->h, msx->format->palette->ncolors);
@@ -94,7 +100,7 @@ int main(int argc, char* argv[]) {
                 // Finds the colors in this line
                 for(int column=0;column<16;column++){
                     int pixel = ((char*)msx->pixels)[(i*16+line)*msx->w+j*16+column];
-                    if(pixel==0)
+                    if(pixel==transparent)
                         continue;
                     if(cColors==0){
                         colors[0]=pixel;
